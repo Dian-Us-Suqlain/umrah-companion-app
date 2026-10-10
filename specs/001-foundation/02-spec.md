@@ -85,6 +85,24 @@ Rules the code follows:
 
 `<base>` is open question 1.
 
+## Working without paid accounts
+
+The owner's decision (11 Oct 2026): spend nothing until the app has an audience. Everything in this spec already fits that. What it means beyond this spec:
+
+| Without paying | Possible? |
+|---|---|
+| Build and run on the iPhone simulator | Yes |
+| Run on the owner's own iPhone | Yes, through Xcode, on up to 3 devices; the app stops opening after 7 days and has to be installed again |
+| Give the iPhone app to anyone else (TestFlight, App Store) | No |
+| Push notifications on iPhone | No |
+| Build an Android app file and send it to people to install directly | Yes |
+| Push notifications on Android | To be confirmed in the spec that adds notifications |
+| Play Store | No (one-off fee) |
+
+So until an Apple account exists, real people can only use the app on Android, or as a website built from the same code. Which of those is the way to reach the first users is a question for spec 002, not this one.
+
+Every later spec's domain study must show its services fit a free plan, and say what the limit is.
+
 ## Edge cases
 
 - Phone set to a zone other than the trip's: plan, Today and Now follow the trip's zone.
@@ -116,7 +134,7 @@ Rules the code follows:
 ## Open questions for the owner
 
 1. **Bundle identifier.** It is permanent once the app is in the store. Proposed: `com.dianussuqlain.umrahcompanion`. If there is a domain or company name the app should live under, use that instead.
-2. **Apple Developer Program (99 USD a year).** Not needed for this spec. It is needed before the first real-phone test through TestFlight and before push notifications, so before the spec after next at the latest. Proposed: enrol while this spec is being built, so it does not hold up the next one.
+2. ~~Apple Developer Program.~~ **Decided 11 Oct 2026: no paid accounts or services for now.** Store accounts are bought only once the app has an audience. See "Working without paid accounts" below.
 3. **Licence.** The repository is public with no licence, which means others may read the code but not reuse it. Proposed: leave it that way while this is heading towards a product.
 4. **Languages.** Proposed: English only for now, with text kept in one table so Urdu and Arabic (right-to-left) can be added in a later spec.
 5. **Next spec.** Proposed 002: accounts, groups and the server (login service, database, where documents are stored), because every real feature depends on it.
