@@ -1,0 +1,79 @@
+name: Checks
+
+on:
+  pull_request:
+    branches: [staging, main]
+  push:
+    branches: [staging, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Only staging or a hotfix branch may target main
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            staging|hotfix/*) ;;
+            *) echo "::error::Pull requests into main must come from staging or hotfix/*, not $HEAD_REF"; exit 1 ;;
+          esac
+
+      - name: No assistant attribution in commits or pull request text
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          pattern='co-authored-by:.*(claude|anthropic|copilot|chatgpt|openai)|generated with .*(claude|copilot|chatgpt)|noreply@anthropic\.com'
+          if git log --format='%B' "$BASE_SHA..$HEAD_SHA" | grep -inE "$pattern"; then
+            echo "::error::A commit message in this pull request carries assistant attribution"; exit 1
+          fi
+          if git log --format='%an <%ae> / %cn <%ce>' "$BASE_SHA..$HEAD_SHA" | grep -iE 'claude|anthropic'; then
+            echo "::error::A commit in this pull request is authored or committed as an assistant"; exit 1
+          fi
+          if printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" | grep -inE "$pattern"; then
+            echo "::error::The pull request title or description carries assistant attribution"; exit 1
+          fi
+
+      - name: Changelog has a valid top section
+        run: |
+          grep -qE '^## (Unreleased|[0-9]+\.[0-9]+\.[0-9]+ — [0-9]{4}-[0-9]{2}-[0-9]{2})$' CHANGELOG.md \
+            || { echo "::error::CHANGELOG.md needs a '## Unreleased' or '## X.Y.Z — YYYY-MM-DD' section"; exit 1; }
+
+      # The steps below start working once the app has a package.json.
+      - uses: actions/setup-node@v4
+        if: hashFiles('package.json') != ''
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        if: hashFiles('package.json') != ''
+        run: npm ci
+
+      - name: Lint
+        if: hashFiles('package.json') != ''
+        run: npm run lint
+
+      - name: Type check
+        if: hashFiles('package.json') != ''
+        run: npm run typecheck
+
+      - name: Tests
+        if: hashFiles('package.json') != ''
+        run: npm test

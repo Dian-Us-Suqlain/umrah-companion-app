@@ -1,0 +1,20 @@
+.DS_Store
+node_modules/
+.env*
+!.env.example
+
+# Expo / React Native
+.expo/
+dist/
+web-build/
+ios/
+android/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Local assistant settings
+.claude/settings.local.json
