@@ -23,3 +23,4 @@ A spec reaches the owner as a pull request from a `spec/NNN-short-name` branch i
 
 | # | Feature | Status |
 |---|---|---|
+| 001 | [Foundation: a running app shell, the trip-plan logic, tests and builds](001-foundation/02-spec.md) | Awaiting approval |
