@@ -42,7 +42,7 @@ There is no app yet. Before any real feature (accounts, documents, flights, SOS)
 | TestFlight builds must already follow the review guidelines. | Guidelines 2.2, same page |
 | "Inaccurate or misleading quotations of religious texts" are grounds for rejection. This backs the rule that guide and dua content names a checkable source. | Guidelines 1.1.5, same page |
 
-None of these need work in this spec (no accounts, no religious content yet), but they are why the shell has a "More" area where the privacy policy, account deletion and content sources will live.
+None of these need work in this spec (no accounts, no religious content yet), but they are why the shell has a "Profile" area where the privacy policy, account deletion and content sources will live.
 
 ## What carries over from the first app
 

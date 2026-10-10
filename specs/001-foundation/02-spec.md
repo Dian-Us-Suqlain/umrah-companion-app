@@ -39,7 +39,7 @@ DAY 4 · TUE 6 JAN · Makkah
 
 Today is highlighted, a "Now" line separates past from next, past days are dimmed. A cancelled flight in the sample shows as cancelled here and on the Today card.
 
-**More.** The app version, which variant it is (development / staging / production), and placeholders for "Privacy policy", "Sources" and "Delete account" marked "Coming later". In the development and staging variants only, a **Self-check** row (see below).
+**Profile.** The app version, which variant it is (development / staging / production), and placeholders for "Privacy policy", "Sources" and "Delete account" marked "Coming later". In the development and staging variants only, a **Self-check** row (see below).
 
 Because there is no real clock-linked trip, the sample trip is placed around the current date each time the app opens (it starts two days before today), so the Today card and the Now line always have something to show.
 
@@ -136,5 +136,5 @@ Every later spec's domain study must show its services fit a free plan, and say 
 1. **Bundle identifier.** It is permanent once the app is in the store. Proposed: `com.dianussuqlain.umrahcompanion`. If there is a domain or company name the app should live under, use that instead.
 2. ~~Apple Developer Program.~~ **Decided 11 Oct 2026: no paid accounts or services for now.** Store accounts are bought only once the app has an audience. See "Working without paid accounts" below.
 3. **Licence.** The repository is public with no licence, which means others may read the code but not reuse it. Proposed: leave it that way while this is heading towards a product.
-4. **Languages.** Proposed: English only for now, with text kept in one table so Urdu and Arabic (right-to-left) can be added in a later spec.
-5. **Next spec.** Proposed 002: accounts, groups and the server (login service, database, where documents are stored), because every real feature depends on it.
+4. ~~Languages.~~ **Decided 11 Oct 2026: English only for now; Urdu is added later.** Text stays in one string table so that is possible.
+5. ~~Next spec.~~ **Decided 11 Oct 2026: 002 is accounts and groups.** The app starts as a guest with no sign-up; sign-up and sign-in screens are reached later from profile settings. A group has an admin account; a person travelling alone has a simple account that acts as its own admin.
