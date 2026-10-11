@@ -2,12 +2,26 @@
 
 A mobile app for groups travelling for Umrah: the trip plan day by day, flights with live status, hotels, each traveller's documents, family locations, an SOS board, prayer times and Qibla, and a guide to the rites.
 
-**Status: not built yet.** This repository holds the process and the specs. App code starts after the first spec is approved.
+**Status: early.** The app opens and shows an invented sample trip (Today, Plan, Profile). There are no accounts or real data yet; see [`specs/`](specs/README.md) for what is built and what is next.
+
+## Run it
+
+Needs a Mac with Xcode and Node 22 or later.
+
+```bash
+npm install
+npm run ios        # builds and opens the app on an iPhone simulator
+npm test           # unit and screen tests
+npm run lint
+npm run typecheck
+```
+
+Every pull request also builds the Android app; the app file is attached to the pull request's "Checks" run.
 
 ## Stack
 
 - Expo (React Native) and TypeScript: one codebase for iPhone and Android. iPhone first.
-- Backend to be decided in the specs.
+- Firebase (login and shared data) from spec 002 on. See [`docs/tech-stack.md`](docs/tech-stack.md) if present.
 
 ## How work happens here
 

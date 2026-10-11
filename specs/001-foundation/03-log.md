@@ -16,3 +16,14 @@
 - Still open: bundle identifier and licence (owner asked what they mean; explained, awaiting a choice).
 - **Owner decision:** bundle identifier is `com.dianussuqlain.umrahcompanion`. The only question left is the licence; the repository stays without one until the owner chooses, which does not block the build.
 - **Approved by the owner, 11 Oct 2026**, in the conversation: "go ahead with firebase, start building the application, I have already connected my iphone as well and xcode is ready too." Firebase is for spec 002; it does not change this spec. Building starts on `feat/001-foundation`. The owner's own iPhone is connected, so criterion 1 is also tried on a real phone through Xcode's free signing.
+
+## 11 Oct 2026 — build
+
+- **Screens live in `src/app/`, not `app/`.** Reason: it is where the current Expo template puts them, with the `@/` import alias pointing at `src/`. Everything else in the spec's structure is as written.
+- **`shortDate` is written by hand** ("Wed 13 Jan") instead of using the phone's date formatting. Reason: different engines format dates differently, and this text ends up in notifications.
+- **The first app's `stays` tests were not ported.** They test the server code that detects hotel check-ins from locations, which is not part of the trip-plan logic. How the plan uses a detected stay is ported and tested.
+- **Words produced by the trip-plan logic are still English inside `src/core`** ("No transport saved for…", "Check-in", "lands 00:10 next day"). Screen text is in the string table. Moving the logic's words out is left for the spec that adds Urdu.
+- **Tap-through test: Jest with Expo Router's test helper, not Maestro.** Reason: Maestro needs Java, which is not on the owner's Mac, and installing it was not asked for. The Jest tests open the real screens, visit every tab and the self-check, and run in the `checks` workflow on every pull request, which a local-only Maestro flow would not have. Cost: they do not run on a real simulator.
+- **Android is built in the `checks` workflow, not on the Mac.** Reason: the Mac has no Android SDK or Java. The workflow keeps the app file for 14 days so it can be installed on an Android phone.
+- **The time-zone risk is closed.** The self-check ran on the iPhone simulator's Hermes engine (250829098.0.17): all 20 cases passed, including named zones and daylight-saving changes. No fallback needed.
+- **Testing library pinned to version 13.** Version 14 changed `render` to be asynchronous and Expo Router's test helper for SDK 57 does not support it yet.
