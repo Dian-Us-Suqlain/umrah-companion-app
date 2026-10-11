@@ -20,3 +20,4 @@
 - **Joining and inviting need a confirmed email.** Reason: keeps mistyped and throwaway addresses out of groups at no cost.
 - **Firebase configuration files stay out of the public repository.**
 - Spec back to "Awaiting approval".
+- **Approved by the owner, 11 Oct 2026**, by merging pull request #2. That settles the open questions as proposed: guest on the phone only; email and password only; several admins per group; joining with a code is immediate; sign-up asks for name, email and password. Still needed from the owner later: a free Firebase project for the real-email test.

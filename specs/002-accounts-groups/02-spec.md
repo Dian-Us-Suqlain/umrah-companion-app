@@ -1,4 +1,4 @@
-**Status: Awaiting approval** (rewritten for Firebase 11 Oct 2026, after the owner chose it). Depends on [001 — Foundation](../001-foundation/02-spec.md) being built first.
+**Status: Approved (11 Oct 2026)** — the owner merged the spec pull request (#2). Depends on [001 — Foundation](../001-foundation/02-spec.md) being merged first.
 
 # 002 — Accounts and groups
 
