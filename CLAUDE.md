@@ -8,6 +8,10 @@ A from-scratch rebuild of a private family web app as a public mobile product. E
 - No real people's data: names, passport or visa numbers, booking references, phone numbers, real trip dates. Fixtures and screenshots use invented data.
 - No keys, tokens or signing files. Secrets live in GitHub and EAS secrets.
 
+## No paid services
+
+The owner is spending nothing until the app has an audience: no Apple Developer Program, no Play Console, no paid plans. Use free plans only, state their limits in the domain study, and never sign up for, upgrade or enter payment details on anything. If a feature cannot be done for free, say so in the spec instead of working around it.
+
 ## Feature workflow (required for every new feature)
 
 1. **Domain study** — research the problem and constraints before designing. Verify outside facts (religious text, travel rules, platform and store rules, service limits and prices) against trusted sources and cite them.
