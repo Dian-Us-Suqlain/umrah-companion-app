@@ -21,7 +21,7 @@ Every pull request also builds the Android app; the app file is attached to the 
 ## Stack
 
 - Expo (React Native) and TypeScript: one codebase for iPhone and Android. iPhone first.
-- Firebase (login and shared data) from spec 002 on. See [`docs/tech-stack.md`](docs/tech-stack.md) if present.
+- Firebase (login and shared data) from spec 002 on.
 
 ## How work happens here
 
