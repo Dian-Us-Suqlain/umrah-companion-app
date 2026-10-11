@@ -83,7 +83,7 @@ Rules the code follows:
 | staging | Umrah Companion (Staging) | `<base>.staging` |
 | production | Umrah Companion | `<base>` |
 
-`<base>` is open question 1.
+`<base>` is `com.dianussuqlain.umrahcompanion` (owner decision, 11 Oct 2026).
 
 ## Working without paid accounts
 
@@ -133,7 +133,7 @@ Every later spec's domain study must show its services fit a free plan, and say 
 
 ## Open questions for the owner
 
-1. **Bundle identifier.** It is permanent once the app is in the store. Proposed: `com.dianussuqlain.umrahcompanion`. If there is a domain or company name the app should live under, use that instead.
+1. ~~Bundle identifier.~~ **Decided 11 Oct 2026: `com.dianussuqlain.umrahcompanion`**, with `.dev` and `.staging` added for the other two variants.
 2. ~~Apple Developer Program.~~ **Decided 11 Oct 2026: no paid accounts or services for now.** Store accounts are bought only once the app has an audience. See "Working without paid accounts" below.
 3. **Licence.** The repository is public with no licence, which means others may read the code but not reuse it. Proposed: leave it that way while this is heading towards a product.
 4. ~~Languages.~~ **Decided 11 Oct 2026: English only for now; Urdu is added later.** Text stays in one string table so that is possible.
