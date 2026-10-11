@@ -18,3 +18,8 @@ android/
 
 # Local assistant settings
 .claude/settings.local.json
+expo-env.d.ts
+.kotlin/
+.metro-health-check*
+*.tsbuildinfo
+*.pem
