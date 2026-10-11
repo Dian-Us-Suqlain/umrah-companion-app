@@ -13,3 +13,10 @@
 - **This spec was written before 001 is approved or built**, to keep moving while 001 waits on the bundle identifier. It depends on 001 and no code for it starts before 001 is merged.
 - Spec sent to the owner for approval.
 - **Backend choice reopened.** The owner asked for a full scan of what can be had for free (`docs/tech-stack.md`, pull request #3). It found that on free plans Firebase sends sign-up and reset emails to real users and does not pause when unused, which removes the two biggest problems recorded above. New recommendation: Firebase. This spec is not to be approved as written until the owner chooses; if Firebase is chosen, "Sign-in methods" and "Server" are rewritten and the screens and group rules stay.
+- **Owner decision: Firebase.** "Great, go ahead with firebase." Spec rewritten: email and password sign-up (Firebase sends the emails), Firestore with security rules in place of Postgres tables and row rules, no server code.
+- **Google sign-in dropped from this version.** Reason: with email working it is no longer needed, and offering it would oblige the app to add Sign in with Apple (paid) before an App Store release. My proposal; awaiting the owner's answer.
+- **Lockout after wrong invite codes dropped.** Reason: it needs server code, which the free plan lacks. Codes cannot be listed, there are about 850 billion of them, and they expire in 7 days.
+- **Members and roles kept inside the group document.** Reason: lets the database check "at least one admin" on every change without server code.
+- **Joining and inviting need a confirmed email.** Reason: keeps mistyped and throwaway addresses out of groups at no cost.
+- **Firebase configuration files stay out of the public repository.**
+- Spec back to "Awaiting approval".

@@ -23,4 +23,4 @@ A spec reaches the owner as a pull request from a `spec/NNN-short-name` branch i
 
 | # | Feature | Status |
 |---|---|---|
-| 002 | [Accounts and groups: guest first, sign-up and sign-in, group admins and invites](002-accounts-groups/02-spec.md) | Draft (backend choice open) |
+| 002 | [Accounts and groups: guest first, sign-up and sign-in, group admins and invites](002-accounts-groups/02-spec.md) | Awaiting approval |

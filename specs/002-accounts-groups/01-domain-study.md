@@ -98,3 +98,23 @@ The owner's description, "a simple account would work that would technically act
 5. **The last admin.** If the only admin deletes their account or leaves, a group is orphaned. The design must make that impossible.
 6. **Invite codes can be guessed or forwarded.** Codes must expire, be revocable, and joining must be rate-limited.
 7. **Not verified:** that a guest-to-account id stays the same on Supabase (not needed if guests are phone-only); that Google sign-in on the iPhone simulator works without any Apple account. Both are checked during the build.
+
+## Addendum, 11 Oct 2026: Firebase
+
+After the wider scan in `docs/tech-stack.md` the owner chose Firebase. What changes from the study above:
+
+| Fact | Source |
+|---|---|
+| Firebase's free plan needs no payment method and includes Authentication for 50,000 monthly users. | [Firebase pricing](https://firebase.google.com/pricing) |
+| It sends its own emails: 1,000 address confirmations and 150 password resets a day on the free plan. | [Firebase Authentication limits](https://firebase.google.com/docs/auth/limits) |
+| New accounts are limited to 100 an hour per network address, which a hotel full of pilgrims signing up at once could reach. | Same page |
+| Cloud Firestore free quota: 1 GiB stored, 50,000 reads, 20,000 writes and 20,000 deletes a day, one free database per project. | [Firestore quotas](https://firebase.google.com/docs/firestore/quotas) |
+| Cloud Functions and Cloud Storage are not on the free plan. | [Firebase pricing](https://firebase.google.com/pricing) |
+| An app that uses only its own account system is exempt from the rule that requires Sign in with Apple. | [App Store Review Guidelines 4.8](https://developer.apple.com/app-store/review/guidelines/) |
+
+Consequences for the design:
+
+- Email sign-up now works for real users, so risk 1 above no longer applies. Google sign-in is dropped from this version, which also removes the Sign in with Apple obligation.
+- Risks 2 and 3 (pausing, two projects) no longer apply.
+- With no server code, joining by code and the "at least one admin" rule are enforced by Firestore security rules instead of database functions, and the lockout after wrong codes is dropped.
+- **Not confirmed from documentation:** that the native Firebase library works on Expo SDK 57 with offline data, that the local emulator covers everything the tests need, and that a signed-in user can delete their own login from the app. All three are checked in the first build step.
