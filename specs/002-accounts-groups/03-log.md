@@ -12,3 +12,4 @@
 - **Travellers without a phone are out of this spec.** Reason: they are people in a trip, not accounts; they belong with the trip and documents spec.
 - **This spec was written before 001 is approved or built**, to keep moving while 001 waits on the bundle identifier. It depends on 001 and no code for it starts before 001 is merged.
 - Spec sent to the owner for approval.
+- **Backend choice reopened.** The owner asked for a full scan of what can be had for free (`docs/tech-stack.md`, pull request #3). It found that on free plans Firebase sends sign-up and reset emails to real users and does not pause when unused, which removes the two biggest problems recorded above. New recommendation: Firebase. This spec is not to be approved as written until the owner chooses; if Firebase is chosen, "Sign-in methods" and "Server" are rewritten and the screens and group rules stay.

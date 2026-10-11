@@ -1,4 +1,4 @@
-**Status: Awaiting approval** (written 11 Oct 2026). Depends on [001 — Foundation](../001-foundation/02-spec.md) being built first.
+**Status: Draft** (written 11 Oct 2026; backend choice reopened by the tech stack scan, see the log). Depends on [001 — Foundation](../001-foundation/02-spec.md) being built first.
 
 # 002 — Accounts and groups
 
