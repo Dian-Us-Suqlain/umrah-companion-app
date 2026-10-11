@@ -1,4 +1,4 @@
-**Status: Approved (11 Oct 2026)** — the owner said "start building the application" after answering the open questions; see the log.
+**Status: Built (pull request #4)** — approved by the owner 11 Oct 2026; review in [04-review.md](04-review.md).
 
 # 001 — Foundation: a running app shell, the trip-plan logic, tests and builds
 
