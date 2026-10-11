@@ -15,3 +15,4 @@
 - **Effect on this spec:** the third tab is called "Profile" rather than "More", since that is where sign-up and sign-in will be reached from in 002. Nothing else changes; there are still no accounts here.
 - Still open: bundle identifier and licence (owner asked what they mean; explained, awaiting a choice).
 - **Owner decision:** bundle identifier is `com.dianussuqlain.umrahcompanion`. The only question left is the licence; the repository stays without one until the owner chooses, which does not block the build.
+- **Approved by the owner, 11 Oct 2026**, in the conversation: "go ahead with firebase, start building the application, I have already connected my iphone as well and xcode is ready too." Firebase is for spec 002; it does not change this spec. Building starts on `feat/001-foundation`. The owner's own iPhone is connected, so criterion 1 is also tried on a real phone through Xcode's free signing.

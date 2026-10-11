@@ -1,4 +1,4 @@
-**Status: Awaiting approval** (written 11 Oct 2026)
+**Status: Approved (11 Oct 2026)** — the owner said "start building the application" after answering the open questions; see the log.
 
 # 001 — Foundation: a running app shell, the trip-plan logic, tests and builds
 
