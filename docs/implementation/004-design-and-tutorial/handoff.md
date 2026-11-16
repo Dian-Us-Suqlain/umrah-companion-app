@@ -1,4 +1,6 @@
-# Hand-off: 004 — New look, four tabs, tutorial (17 Nov 2026)
+# Hand-off: 004 and 005 (17 Nov 2026)
+
+**Update, later the same day:** spec 005 (motion, touch feedback, journey line, swipe tutorial, copy code) was built on top, tested and reviewed: see `docs/implementation/005-motion-and-feedback/`. The state before it is the local marker `refs/snapshots/004-before-005`. The app with all three features launches on the iPhone 14 Pro. Three commits are waiting: 002, 004, 005.
 
 ## Where things stand
 - **Built, tested and reviewed**, not committed. Branch `feat/002-accounts-groups` holds two uncommitted features: 002 (accounts and groups) and 004 (this one) on top.
@@ -25,6 +27,3 @@
 ## Next steps
 - After 1 and 2: rerun `test-feature`, write `specs/004-design-and-tutorial/04-review.md`, pull request into `staging`.
 - Next feature, proposed order (each its own study and spec): trip, travellers and documents · **Urdu (moved up)** · board, alerts and SOS · flights with live status · locations · prayer times, Qibla and the guide · operator console · store release and payments.
-
-## Kept on this Mac
-- `/private/tmp/claude-501/-Users-dianussuqlain-Desktop-Projects/22f885a7-ab5a-4074-9145-562b8c53b524/scratchpad/ddr` (4.2 GB): the signed Release build, kept for the rerun. Safe to delete.

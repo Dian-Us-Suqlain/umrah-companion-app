@@ -1,4 +1,5 @@
 import { contrast } from '../contrast';
+import { countdownText } from '../countdown';
 import { MAIN_BUTTON, MIN_TARGET, size, textPairs, themes } from '../theme';
 import { TUTORIAL_SEEN_KEY, tutorialDecision } from '../tutorial';
 
@@ -17,6 +18,20 @@ describe('colours', () => {
 
   test('light and dark define the same colours', () => {
     expect(Object.keys(themes.dark).sort()).toEqual(Object.keys(themes.light).sort());
+  });
+});
+
+describe('the countdown', () => {
+  test('hours, minutes and seconds, rounded up so it never shows less time than there is', () => {
+    expect(countdownText(5_047_000)).toBe('1:24:07');
+    expect(countdownText(3_600_000)).toBe('1:00:00');
+    expect(countdownText(59_001)).toBe('0:01:00');
+    expect(countdownText(1)).toBe('0:00:01');
+  });
+  test('nothing at zero, in the past, or for a time that is not a number', () => {
+    expect(countdownText(0)).toBeNull();
+    expect(countdownText(-5000)).toBeNull();
+    expect(countdownText(NaN)).toBeNull();
   });
 });
 

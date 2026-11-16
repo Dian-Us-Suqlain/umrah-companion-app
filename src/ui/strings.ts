@@ -19,6 +19,8 @@ export const t = {
     later: (date: string) => `Next, ${date}`,
     happeningNow: 'Happening now',
     nextUp: 'Next',
+    untilStart: 'until it starts',
+    untilEnd: 'until it ends',
     dayOf: (n: number, total: number) => `Day ${n} of ${total}`,
   },
   plan: {
@@ -160,6 +162,8 @@ export const t = {
     expires: (date: string) => `Valid until ${date}`,
     codeElsewhere: 'A code is active, but it was made on another phone, so it can’t be shown here. Make a new one to share; the old one stops working.',
     share: 'Share',
+    copy: 'Copy code',
+    copied: 'Code copied',
     shareMessage: (group: string, code: string) => `Join “${group}” on Umrah Companion. Open the app, go to Profile, tap “Join a group with a code” and enter ${code}`,
     newCode: 'New code',
     newCodeNote: 'Making a new code cancels the old one.',

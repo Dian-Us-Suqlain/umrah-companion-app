@@ -1,14 +1,16 @@
 /* One group: its name, the invite code, the people in it, and leaving. Shown on the Group tab
    (the group the app is showing) and on its own screen (any group, by id). */
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, Share, StyleSheet, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Alert, Share, StyleSheet, View } from 'react-native';
 
 import { formatCode } from '@/core/groups/invites';
 import { canInvite, canLeave, canRemove, canSetRole, isAdmin, isOwnGroup, memberIds, validName, type Group } from '@/core/groups/rules';
 import type { ActiveInvite, User } from '@/data/backend';
 
 import { Avatar, Button, Card, Divider, Field, HeroCard, IconButton, Notice, SectionLabel, Title, Txt } from './components';
+import { successFeel } from './motion';
 import { useAction, useSession } from './session';
 import { t } from './strings';
 import { size, useTheme } from './theme';
@@ -22,6 +24,22 @@ function Invites({ group, user }: { group: Group; user: User }) {
   const [invite, setInvite] = useState<ActiveInvite | null>(null);
   const allowed = canInvite(group, user.id, user.emailConfirmed);
   const alone = memberIds(group).length === 1;
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => void (copiedTimer.current && clearTimeout(copiedTimer.current)), []);
+  /** Says "Code copied" only when the phone really took it. */
+  const copy = async (code: string) => {
+    try {
+      await Clipboard.setStringAsync(formatCode(code));
+    } catch {
+      return;
+    }
+    successFeel();
+    AccessibilityInfo.announceForAccessibility(t.group.copied); // a screen reader hears it too
+    setCopied(true);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), 2000);
+  };
 
   const load = useCallback(() => {
     if (!allowed.ok) return; // only someone who may invite asks for the code
@@ -53,7 +71,7 @@ function Invites({ group, user }: { group: Group; user: User }) {
             {formatCode(invite.code)}
           </Txt>
           <Txt size={size.small} tone="onHeroMuted">
-            {t.group.expires(day(invite.expiresAt))}
+            {copied ? t.group.copied : t.group.expires(day(invite.expiresAt))}
           </Txt>
         </View>
       ) : invite ? (
@@ -61,20 +79,20 @@ function Invites({ group, user }: { group: Group; user: User }) {
           {t.group.codeElsewhere}
         </Txt>
       ) : null}
-      <View style={styles.pair}>
-        {invite?.code ? (
-          <Button grow testID="share-code" on="hero" icon="share-outline" title={t.group.share} onPress={() => void Share.share({ message: t.group.shareMessage(group.name, formatCode(invite.code ?? '')) })} />
-        ) : null}
-        <Button
-          grow
-          testID="new-code"
-          on="hero"
-          kind={invite?.code ? 'outline' : 'primary'}
-          title={invite ? t.group.newCode : t.group.makeCode}
-          busy={busy}
-          onPress={() => void run(async () => setInvite(await backend.createInvite(group, user.id)))}
-        />
-      </View>
+      {invite?.code ? (
+        <View style={styles.pair}>
+            <Button grow testID="copy-code" on="hero" icon="copy-outline" title={t.group.copy} onPress={() => void copy(invite.code ?? '')} />
+            <Button grow testID="share-code" on="hero" kind="outline" icon="share-outline" title={t.group.share} onPress={() => void Share.share({ message: t.group.shareMessage(group.name, formatCode(invite.code ?? '')) }).catch(() => {})} />
+        </View>
+      ) : null}
+      <Button
+        testID="new-code"
+        on="hero"
+        kind={invite?.code ? 'outline' : 'primary'}
+        title={invite ? t.group.newCode : t.group.makeCode}
+        busy={busy}
+        onPress={() => void run(async () => (setCopied(false), setInvite(await backend.createInvite(group, user.id))))}
+      />
       {invite ? (
         <>
           <Txt size={size.small} tone="onHeroMuted">
