@@ -2,13 +2,14 @@
    nothing tappable is under 48 points tall, all text follows the phone's text-size setting,
    and every control has a label a screen reader can speak. */
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ReactNode } from 'react';
+import { Children, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextInputProps, type TextProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { isPast, type Clock, type Gap, type Row as PlanItem } from '@/core/trip-plan';
+import { isNow, isPast, type Clock, type Gap, type Row as PlanItem } from '@/core/trip-plan';
 
 import { initials } from './initials';
+import { Rise, tapFeel } from './motion';
 import { t } from './strings';
 import { MAIN_BUTTON, MIN_TARGET, radius, size, useTheme, type Colour } from './theme';
 
@@ -20,7 +21,13 @@ export function Screen({ children, edges = ['top'], scroll = true, tone = 'backg
     <SafeAreaView style={[styles.fill, { backgroundColor: c[tone] }]} edges={edges}>
       {scroll ? (
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          {children}
+          {/* Each part of a screen eases up into place, one after the other. */}
+          {Children.toArray(children).map((child, i) => (
+            // A part made of several pieces keeps the same space between them as between parts.
+            <Rise key={(child as { key?: string }).key ?? i} order={Math.min(i, 6)} style={styles.part}>
+              {child}
+            </Rise>
+          ))}
         </ScrollView>
       ) : (
         children
@@ -145,7 +152,7 @@ export function Row({ icon, label, sub, value, onPress, testID, danger }: { icon
     </>
   );
   return onPress ? (
-    <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, { opacity: pressed ? 0.6 : 1 }]}>
+    <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }, pressed && styles.pressed]}>
       {inside}
     </Pressable>
   ) : (
@@ -198,8 +205,11 @@ export function Button({ title, onPress, kind = 'primary', on = 'page', icon, bu
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy: !!busy }}
       disabled={off}
-      onPress={onPress}
-      style={({ pressed }) => [styles.button, kind === 'plain' && styles.buttonPlain, grow && styles.fill, { backgroundColor: back, borderColor: border, opacity: off ? 0.45 : pressed ? 0.7 : 1 }]}>
+      onPress={() => {
+        if (filled) tapFeel(); // the main button answers with a light tap
+        onPress();
+      }}
+      style={({ pressed }) => [styles.button, kind === 'plain' && styles.buttonPlain, grow && styles.fill, { backgroundColor: back, borderColor: border, opacity: off ? 0.45 : pressed ? 0.85 : 1 }, pressed && styles.pressed]}>
       {busy ? <ActivityIndicator color={front} /> : icon ? <Ionicons name={icon} size={20} color={front} /> : null}
       <Txt bold size={size.body} style={[styles.buttonText, { color: front }]}>
         {title}
@@ -287,6 +297,7 @@ export function PlanRow({ row, now }: { row: PlanItem; now: Clock }) {
         <Txt size={size.small} tone="muted">
           {row.who.join(', ')}
           {row.done ? ` · ${t.done}` : ''}
+          {isNow(row, now) ? ` · ${t.today.happeningNow}` : ''}
         </Txt>
       </View>
     </View>
@@ -320,12 +331,14 @@ export function NowLine() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  pressed: { transform: [{ scale: 0.97 }] }, // buttons and rows press in under the finger
   content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32, gap: 16 },
+  part: { gap: 16 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   title: { fontWeight: '700', letterSpacing: -0.5 },
   card: { borderRadius: radius.card, padding: 16, gap: 12 },
   cardTight: { paddingVertical: 4, gap: 0 },
-  hero: { borderRadius: radius.hero, padding: 20, gap: 14 },
+  hero: { borderRadius: radius.hero, padding: 20, gap: 14, overflow: 'hidden' },
   sectionLabel: { letterSpacing: 0.8, textTransform: 'uppercase' },
   badge: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
   divider: { height: 1 },

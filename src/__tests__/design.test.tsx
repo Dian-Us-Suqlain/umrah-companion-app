@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render } from '@testing-library/react-native';
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 import { getBackend } from '@/data/default-backend';
 import type { MemoryBackend } from '@/data/memory-backend';
@@ -42,6 +42,21 @@ describe('the tutorial', () => {
     press('tutorial-skip');
     expect(screen.getByTestId('tutorial-3')).toBeTruthy();
     expect(screen.queryByTestId('tutorial-skip')).toBeNull();
+  });
+
+  test('a swipe and the buttons agree: after swiping to the last screen, Skip is gone and the two exits are there', async () => {
+    renderRouter('./src/app');
+    await screen.findByTestId('tutorial-1');
+    const swipeTo = (page: number) => fireEvent(screen.getByTestId('tutorial-pager'), 'momentumScrollEnd', { nativeEvent: { contentOffset: { x: page * Dimensions.get('window').width } } });
+    swipeTo(1);
+    expect(screen.getByTestId('tutorial-2')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-back')).toBeTruthy();
+    swipeTo(2);
+    expect(screen.getByTestId('tutorial-3')).toBeTruthy();
+    expect(screen.queryByTestId('tutorial-skip')).toBeNull();
+    expect(screen.getByTestId('tutorial-look')).toBeTruthy();
+    press('tutorial-back'); // and a button after a swipe carries on from where the swipe left off
+    expect(screen.getByTestId('tutorial-2')).toBeTruthy();
   });
 
   test('"Look around first" lands on Today with the sample trip, and the next launch opens straight on Today', async () => {
@@ -103,6 +118,64 @@ describe('the tutorial', () => {
     expect(await screen.findByText('You’re using Umrah Companion as a guest.')).toBeTruthy();
     expect(screen.queryByTestId('tutorial-3')).toBeNull();
   });
+});
+
+describe('motion and feedback (spec 005)', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2027-01-11T09:00:00Z')); // noon in Makkah, day 3 of the sample trip
+  });
+  afterEach(() => jest.useRealTimers());
+
+  test('Today counts down to the next thing, and ticks', async () => {
+    renderRouter('./src/app');
+    await started();
+    // the Ziyarah tour starts at 16:00 in Makkah, four hours from "now"
+    expect(screen.getByTestId('countdown').props.children).toBe('4:00:00');
+    expect(screen.getByText('until it starts')).toBeTruthy();
+    act(() => jest.advanceTimersByTime(61_000));
+    expect(screen.getByTestId('countdown').props.children).toBe('3:58:59');
+  });
+
+  test('when the countdown reaches zero the card moves on at once: the item is now happening, counted to its end', async () => {
+    jest.setSystemTime(new Date('2027-01-11T12:59:58Z')); // two seconds before the Ziyarah tour starts
+    renderRouter('./src/app');
+    await started();
+    expect(screen.getByText('Next')).toBeTruthy();
+    expect(screen.getByTestId('countdown').props.children).toBe('0:00:02');
+    act(() => jest.advanceTimersByTime(3000));
+    expect(screen.getByText('Happening now')).toBeTruthy();
+    expect(screen.getByText('until it ends')).toBeTruthy();
+    expect(screen.getByTestId('countdown').props.children).toMatch(/^2:29:5\d$/);
+  });
+
+  test('Plan is a journey line: days passed, today, and days to come are marked differently', async () => {
+    renderRouter('./src/app', { initialUrl: '/plan' });
+    await started();
+    expect(screen.getAllByTestId('journey-done').length).toBe(2);
+    expect(screen.getAllByTestId('journey-today').length).toBe(1);
+    expect(screen.getAllByTestId('journey-ahead').length).toBe(4);
+  });
+});
+
+test('copying the invite code says "Code copied", and only when the phone took it', async () => {
+  const clipboard = jest.requireMock('expo-clipboard') as { setStringAsync: jest.Mock };
+  const server = getBackend() as MemoryBackend;
+  await server.signUp('Aisha Khan', 'aisha@example.com', 'password-1');
+  server.confirmEmail('aisha@example.com');
+  renderRouter('./src/app', { initialUrl: '/group' });
+  await screen.findByTestId('group-title');
+  press('new-code');
+  const code = String((await screen.findByTestId('invite-code')).props.children);
+
+  clipboard.setStringAsync.mockRejectedValueOnce(new Error('refused'));
+  press('copy-code');
+  await act(async () => {});
+  expect(screen.queryByText('Code copied')).toBeNull();
+
+  press('copy-code');
+  expect(await screen.findByText('Code copied')).toBeTruthy();
+  expect(clipboard.setStringAsync).toHaveBeenLastCalledWith(code);
 });
 
 describe('four tabs', () => {

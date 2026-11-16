@@ -14,3 +14,8 @@ What changed in each release, newest first. The release workflow publishes the t
 - A tutorial on first launch: three short screens, skippable, and available again from Profile.
 - Four tabs: the group now has its own tab instead of sitting inside Profile.
 - Easier for every age: larger buttons and rows, all text follows the phone's text size, every icon you can tap has words with it, and nothing needs a swipe.
+- The app moves: screens ease into place, Today counts down to the next thing with a pulse beside it, and the day bar fills.
+- Plan is drawn as a journey line, with today marked.
+- The tutorial can be swiped as well as tapped through.
+- Buttons press in and answer with a light tap; copying an invite code confirms with "Code copied".
+- All motion switches off with the phone's Reduce Motion setting.
