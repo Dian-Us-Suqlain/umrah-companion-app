@@ -49,7 +49,7 @@ test('Profile shows the version and app type, and opens the self-check, which pa
   renderRouter('./src/app');
   go('/profile');
   expect(within(screen.getByTestId('variant')).getByText('Development')).toBeTruthy();
-  expect(screen.getAllByText('Coming later').length).toBe(3);
+  expect(screen.getAllByText('Coming later').length).toBe(2); // privacy policy and sources; delete account is real now
   go('/self-check');
   expect(screen.getByTestId('self-check-result').props.children).toMatch(/^All \d+ checks passed/);
 });

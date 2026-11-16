@@ -78,6 +78,17 @@ jobs:
         if: hashFiles('package.json') != ''
         run: npm test
 
+      # The database's privacy rules, proven against Firebase's local emulator (which needs Java).
+      - uses: actions/setup-java@v4
+        if: hashFiles('firestore.rules') != ''
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Database rules tests
+        if: hashFiles('firestore.rules') != ''
+        run: npm run test:rules
+
   # Proves the same code builds for Android, and keeps the app file so it can be installed on a phone.
   android-build:
     if: github.event_name == 'pull_request'
@@ -97,6 +108,10 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      # Made-up Firebase files for the local emulator; real ones are never in the repository.
+      - name: Write the demo Firebase configuration
+        run: npm run firebase:demo-config
 
       - name: Generate the Android project
         run: npx expo prebuild --platform android

@@ -21,3 +21,21 @@
 - **Firebase configuration files stay out of the public repository.**
 - Spec back to "Awaiting approval".
 - **Approved by the owner, 11 Oct 2026**, by merging pull request #2. That settles the open questions as proposed: guest on the phone only; email and password only; several admins per group; joining with a code is immediate; sign-up asks for name, email and password. Still needed from the owner later: a free Firebase project for the real-email test.
+
+## 13 Nov 2026
+
+- **Owner approved the implementation plan** (`docs/implementation/002-accounts-groups/plan.md`) and the installation of Java for the emulator.
+- **First build step: passed (criterion 0).** Release build on the iPhone 17 Pro Max simulator against the local emulator, Expo SDK 57, React Native 0.86, `@react-native-firebase` 27.1.1. Result, 6 of 6: signed up; saved `groups/own_<id>`; read it online; network off; read it again from the phone's copy (`fromCache: true`); network on. Firebase stays; the Supabase fallback is not needed.
+- **iPhone linking is dynamic, not static.** Reason: this Firebase version arrives as Swift packages and refuses static linking at install time. Set in `app.config.ts`.
+- **Roles are stored as a list of admins on the group**, not as a role on each member. Reason: the database rules cannot loop over members, so "a group always has an admin" can only be checked as a size check on a list. Members stay in the same document; the app still shows a role per person.
+- **A join is two writes in one batch:** the hash of the code into `groups/{id}/joins/{person}` (readable only by that person) and the person into the group. The group's one active code lives in `groups/{id}/admin/invite` (admins only). Reason: the rules can then check that the code is the group's current, unexpired one without the hash ever being visible to other members.
+- **A person's user document is readable only by them.** The spec said "and by members of their groups". Reason: the rules cannot tell whether two people share a group; members already see each other's names in the group itself.
+- **The owner of a group cannot be removed from it by another admin.** The spec was silent. Reason: otherwise a promoted admin could leave someone without their own group.
+- **Deleting an account whose own group still has other people** (after another admin was appointed): the person leaves and the group carries on. The spec only covered the empty case.
+- **The code is shown only on the phone that made it.** Reason: only its hash is stored, as the spec requires, so another admin cannot read it back; they make a new code, which cancels the old one.
+- **Tests were slow because the project sat in a folder synced by iCloud Drive.** Moved to `~/Projects/umrah-companion-app` on the owner's instruction. Jest now scans only `src/`.
+- **Built on `feat/002-accounts-groups`**, tested and reviewed: `docs/implementation/002-accounts-groups/test-report.md`, `review-report.md`, and `04-review.md` here. Not committed or pushed yet.
+- **Review: fourteen findings, twelve fixed.** The serious two: an interrupted account deletion could have deleted a different account that signed in later on the same phone; and a group whose owner had left could not be managed by its remaining admins.
+- **Not met, waiting on the owner:** sign-up does not link to a privacy policy (no page exists yet); real emails (criterion 3) need the Firebase staging project.
+- **An admin can change only their own entry in a group**, and remove others. Reason: the rules cannot check every entry, so letting admins rewrite entries would let them attach anything to another person.
+- **The record of the code used to join is deleted straight after joining.** Reason: nothing about a code should stay on the server once it has done its job.
