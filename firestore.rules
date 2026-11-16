@@ -1,0 +1,155 @@
+rules_version = '2';
+
+// Who can do what. The table in specs/002-accounts-groups/02-spec.md is the source; rules-tests/ proves each row.
+//
+// groups/{gid}                 name, createdBy, members {uid: {name}}, memberIds [uid], admins [uid]
+// groups/{gid}/admin/invite    the group's one active invite: hash of the code, when it was made. Admins only.
+// groups/{gid}/joins/{uid}     the hash of the code a person is joining with. Only that person can read it.
+// invites/{hash}               what a person sees before joining: group, group name, admin's name, when made.
+// users/{uid}                  the person's name.
+//
+// Roles are the `admins` list, not a field on each member, because these rules cannot loop over members:
+// "a group always has an admin" is then one size check on every change.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function uid() { return request.auth.uid; }
+    function signedIn() { return request.auth != null; }
+    function confirmed() { return signedIn() && request.auth.token.email_verified == true; }
+    function validName(n) { return n is string && n.size() > 0 && n.size() <= 60; }
+    function groupPath(gid) { return /databases/$(database)/documents/groups/$(gid); }
+    function isAdminOf(gid) { return signedIn() && uid() in get(groupPath(gid)).data.admins; }
+
+    // True for every group that is allowed to exist.
+    function wellFormed(g) {
+      return g.keys().hasOnly(['name', 'createdBy', 'members', 'memberIds', 'admins'])
+        && validName(g.name)
+        && g.createdBy is string
+        && g.members is map && g.memberIds is list && g.admins is list
+        && g.members.size() <= 200
+        && g.memberIds.size() == g.members.size()
+        && g.memberIds.toSet() == g.members.keys().toSet()
+        && g.admins.size() > 0
+        && g.admins.size() == g.admins.toSet().size()
+        && g.members.keys().hasAll(g.admins);
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && uid() == userId;
+      allow create, update: if signedIn() && uid() == userId
+        && request.resource.data.keys().hasOnly(['name']) && validName(request.resource.data.name);
+      allow delete: if signedIn() && uid() == userId;
+    }
+
+    match /groups/{gid} {
+      function before() { return resource.data; }
+      function after() { return request.resource.data; }
+      function changed() { return after().diff(before()).affectedKeys(); }
+      function membersDiff() { return after().members.diff(before().members); }
+      function membersChanged() { return membersDiff().affectedKeys(); }
+      function iAmMember() { return signedIn() && uid() in before().memberIds; }
+      function iAmAdmin() { return signedIn() && uid() in before().admins; }
+
+      allow read: if iAmMember();
+      // A person may find out that their own group does not exist yet, so the app can create it once.
+      allow get: if signedIn() && resource == null && gid == 'own_' + uid();
+
+      // Only a person's own group can be created, by them, with only them in it.
+      allow create: if signedIn()
+        && gid == 'own_' + uid()
+        && wellFormed(after())
+        && after().createdBy == uid()
+        && after().memberIds == [uid()]
+        && after().admins == [uid()]
+        && after().members[uid()].keys().hasOnly(['name'])
+        && validName(after().members[uid()].name);
+
+      allow update: if signedIn() && wellFormed(after()) && after().createdBy == before().createdBy
+        && (adminChange() || selfChange() || joining());
+
+      // An admin may rename, change roles and remove people. Never add anyone, never rewrite someone
+      // else's entry (only their own name), and never remove the
+      // person whose own group this is (once that person has gone, the remaining admins manage it as usual).
+      function adminChange() {
+        return iAmAdmin()
+          && membersDiff().addedKeys().size() == 0
+          && membersDiff().changedKeys().hasOnly([uid()])
+          && (!(uid() in membersDiff().changedKeys())
+              || (after().members[uid()].keys().hasOnly(['name']) && validName(after().members[uid()].name)))
+          && (!(before().createdBy in before().members)
+              || before().createdBy in after().members
+              || before().createdBy == uid());
+      }
+
+      // Anyone in the group may leave, or correct their own name. Nothing else.
+      function selfChange() {
+        return iAmMember()
+          && changed().hasOnly(['members', 'memberIds', 'admins'])
+          && membersChanged().hasOnly([uid()])
+          && after().admins.toSet().difference(before().admins.toSet()).size() == 0
+          && before().admins.toSet().difference(after().admins.toSet()).hasOnly([uid()])
+          && (!(uid() in after().members)
+              || (after().admins == before().admins
+                  && after().members[uid()].keys().hasOnly(['name'])
+                  && validName(after().members[uid()].name)));
+      }
+
+      // Someone outside adds only themselves, as a plain member, with the group's current unexpired code
+      // and a confirmed email. The code's hash arrives in joins/{uid}, written in the same batch.
+      function joining() {
+        let invite = get(/databases/$(database)/documents/groups/$(gid)/admin/invite);
+        let mine = getAfter(/databases/$(database)/documents/groups/$(gid)/joins/$(uid()));
+        return confirmed()
+          && !(uid() in before().members)
+          && changed().hasOnly(['members', 'memberIds'])
+          && membersChanged().hasOnly([uid()])
+          && after().members[uid()].keys().hasOnly(['name'])
+          && validName(after().members[uid()].name)
+          && invite != null && mine != null
+          && invite.data.hash == mine.data.hash
+          && request.time < invite.data.createdAt + duration.value(7, 'd');
+      }
+
+      // Only the own group, only by its owner, only once nobody else is in it.
+      allow delete: if signedIn() && gid == 'own_' + uid() && before().memberIds == [uid()];
+
+      match /admin/invite {
+        allow read: if isAdminOf(gid);
+        allow create, update: if isAdminOf(gid) && confirmed()
+          && request.resource.data.keys().hasOnly(['hash', 'createdAt', 'createdBy'])
+          && request.resource.data.hash is string && request.resource.data.hash.size() == 64
+          && request.resource.data.createdBy == uid()
+          // The database's own clock, never the phone's: a code lasts 7 days from this moment.
+          && request.resource.data.createdAt == request.time;
+        allow delete: if isAdminOf(gid);
+      }
+
+      match /joins/{userId} {
+        allow read, delete: if signedIn() && uid() == userId;
+        allow create, update: if signedIn() && uid() == userId
+          && request.resource.data.keys().hasOnly(['hash'])
+          && request.resource.data.hash is string && request.resource.data.hash.size() == 64;
+      }
+    }
+
+    match /invites/{hash} {
+      // Looked up by the exact hash of a code. Never listed or searched.
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if confirmed()
+        && request.resource.data.keys().hasOnly(['groupId', 'groupName', 'adminName', 'createdBy', 'createdAt'])
+        && isAdminOf(request.resource.data.groupId)
+        && request.resource.data.createdBy == uid()
+        && validName(request.resource.data.groupName)
+        && validName(request.resource.data.adminName)
+        && request.resource.data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/groups/$(request.resource.data.groupId)/admin/invite).data.hash == hash;
+      // An admin keeps the names shown before joining up to date; nothing else about a code can change.
+      allow update: if isAdminOf(resource.data.groupId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['groupName', 'adminName'])
+        && validName(request.resource.data.groupName)
+        && validName(request.resource.data.adminName);
+      allow delete: if signedIn() && (resource == null || isAdminOf(resource.data.groupId));
+    }
+  }
+}

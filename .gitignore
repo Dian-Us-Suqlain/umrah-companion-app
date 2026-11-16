@@ -23,3 +23,9 @@ expo-env.d.ts
 .metro-health-check*
 *.tsbuildinfo
 *.pem
+
+# Firebase: made-up emulator files, emulator logs. Real configuration files never belong here.
+.firebase/
+GoogleService-Info.plist
+google-services.json
+*-debug.log

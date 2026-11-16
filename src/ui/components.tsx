@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View, type TextProps } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextInputProps, type TextProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { isNow, isPast, type Clock, type Gap, type Row } from '@/core/trip-plan';
@@ -11,7 +11,9 @@ export function Screen({ children, edges = ['top'] }: { children: ReactNode; edg
   const c = useTheme();
   return (
     <SafeAreaView style={[styles.fill, { backgroundColor: c.background }]} edges={edges}>
-      <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {children}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -29,6 +31,62 @@ export function Card({ children, highlight }: { children: ReactNode; highlight?:
       {children}
     </View>
   );
+}
+
+/** A labelled text box. */
+export function Field({ label, hint, ...rest }: TextInputProps & { label: string; hint?: string }) {
+  const c = useTheme();
+  return (
+    <View style={styles.field}>
+      <Txt size={14} tone="muted">
+        {label}
+      </Txt>
+      <TextInput
+        accessibilityLabel={label}
+        placeholderTextColor={c.muted}
+        autoCorrect={false}
+        {...rest}
+        style={[styles.input, { color: c.text, borderColor: c.line, backgroundColor: c.card }]}
+      />
+      {hint ? (
+        <Txt size={13} tone="muted">
+          {hint}
+        </Txt>
+      ) : null}
+    </View>
+  );
+}
+
+type ButtonKind = 'primary' | 'plain' | 'danger';
+/** A button that cannot be pressed while it is busy or disabled, so one tap is one request. */
+export function Button({ title, onPress, kind = 'primary', busy, disabled, testID }: { title: string; onPress: () => void; kind?: ButtonKind; busy?: boolean; disabled?: boolean; testID?: string }) {
+  const c = useTheme();
+  const off = !!busy || !!disabled;
+  const filled = kind === 'primary';
+  const colour = kind === 'danger' ? c.danger : c.accent;
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: off, busy: !!busy }}
+      disabled={off}
+      onPress={onPress}
+      style={({ pressed }) => [styles.button, { backgroundColor: filled ? colour : 'transparent', borderColor: colour, opacity: off ? 0.45 : pressed ? 0.7 : 1 }]}>
+      {busy ? <ActivityIndicator color={filled ? c.card : colour} /> : null}
+      <Txt bold style={{ color: filled ? c.card : colour }}>
+        {title}
+      </Txt>
+    </Pressable>
+  );
+}
+
+/** A line of the screen that explains a problem, or confirms something was done. */
+export function Notice({ text, tone = 'danger' }: { text?: string | null; tone?: 'danger' | 'ok' | 'warn' | 'muted' }) {
+  return text ? (
+    <Txt size={14} tone={tone} accessibilityLiveRegion="polite">
+      {text}
+    </Txt>
+  ) : null;
 }
 
 export function SampleBanner() {
@@ -120,6 +178,9 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
   content: { padding: 16, gap: 12, paddingBottom: 32 },
   card: { borderRadius: 14, padding: 14, gap: 10 },
+  field: { gap: 6 },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16 },
+  button: { minHeight: 48, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' },
   banner: { borderRadius: 12, padding: 12, gap: 2 },
   row: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   when: { width: 96 },

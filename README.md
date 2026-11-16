@@ -2,7 +2,7 @@
 
 A mobile app for groups travelling for Umrah: the trip plan day by day, flights with live status, hotels, each traveller's documents, family locations, an SOS board, prayer times and Qibla, and a guide to the rites.
 
-**Status: early.** The app opens and shows an invented sample trip (Today, Plan, Profile). There are no accounts or real data yet; see [`specs/`](specs/README.md) for what is built and what is next.
+**Status: early.** The app opens and shows an invented sample trip (Today, Plan, Profile), and has accounts and groups (sign up, sign in, invite and join with a code). There is no real trip data yet; see [`specs/`](specs/README.md) for what is built and what is next.
 
 ## Run it
 
@@ -12,11 +12,24 @@ Needs a Mac with Xcode and Node 22 or later.
 npm install
 npm run ios        # builds and opens the app on an iPhone simulator
 npm test           # unit and screen tests
+npm run test:rules # database privacy rules, against Firebase's local emulator (needs Java)
 npm run lint
 npm run typecheck
 ```
 
 Every pull request also builds the Android app; the app file is attached to the pull request's "Checks" run.
+
+## Firebase while developing
+
+A development build talks to Firebase's local emulator, never to a real project. No Firebase configuration file is in this repository.
+
+```bash
+npm run firebase:demo-config   # writes made-up files into .firebase/ (git-ignored)
+npm run emulators              # login and database emulators on this Mac
+npm run ios
+```
+
+Staging and production builds need real files: set `GOOGLE_SERVICES_PLIST` and `GOOGLE_SERVICES_JSON` to their paths.
 
 ## Stack
 
