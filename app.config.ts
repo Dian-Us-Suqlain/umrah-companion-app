@@ -58,8 +58,7 @@ const config: ExpoConfig = {
     '@react-native-firebase/auth',
     // Firebase's iPhone libraries arrive as Swift packages and need dynamic frameworks (static fails at pod install).
     // iOS 27 refuses to launch an app that has not adopted the scene lifecycle; Expo SDK 57 needs it switched on.
-    // Android: Firebase's libraries are built with Kotlin 2.4, newer than React Native's own default, and will not compile with less.
-    ['expo-build-properties', { ios: { useFrameworks: 'dynamic', enableSceneSupport: true }, android: { kotlinVersion: '2.4.0' } }],
+    ['expo-build-properties', { ios: { useFrameworks: 'dynamic', enableSceneSupport: true } }],
     ['expo-splash-screen', { backgroundColor: '#0F5C4D', image: './assets/images/splash-icon.png', imageWidth: 76 }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
