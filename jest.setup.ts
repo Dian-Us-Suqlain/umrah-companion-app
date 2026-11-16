@@ -11,3 +11,7 @@ jest.mock('@/data/default-backend', () => {
     resetBackend: () => (backend = null),
   };
 });
+
+// The first-run tutorial has been seen, unless a test says otherwise: tests start on the tabs, as before.
+const storage = require('@react-native-async-storage/async-storage');
+void (storage.default ?? storage).setItem('device.tutorial-seen', '1');

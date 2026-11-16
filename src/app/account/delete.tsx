@@ -30,11 +30,11 @@ export default function DeleteAccount() {
         blockers.map((g) => (
           <Card key={g.id} highlight>
             <Txt testID="delete-blocked">{t.account.deleteBlocked(g.name)}</Txt>
-            <Button kind="plain" title={t.account.openGroup} onPress={() => router.push({ pathname: '/group/[id]', params: { id: g.id } })} />
+            <Button kind="outline" title={t.account.openGroup} onPress={() => router.push({ pathname: '/group/[id]', params: { id: g.id } })} />
           </Card>
         ))
       ) : (
-        <Card>
+        <>
           <Field testID="password" label={t.account.passwordAgain} value={password} onChangeText={setPassword} secureTextEntry textContentType="password" />
           <Notice text={error} />
           <Button
@@ -45,7 +45,8 @@ export default function DeleteAccount() {
             disabled={!password}
             onPress={() => void run(() => backend.deleteAccount(password, plan)).then((ok) => ok && router.dismissTo('/profile'))}
           />
-        </Card>
+          <Button kind="plain" title={t.account.keep} disabled={busy} onPress={() => router.back()} />
+        </>
       )}
     </Screen>
   );

@@ -73,9 +73,10 @@ describe('sign up', () => {
     await signUpOnScreen();
     expect(screen.getByTestId('profile-name').props.children).toBe('Aisha Khan');
     expect(screen.getByText('aisha@example.com')).toBeTruthy();
-    expect(screen.getByText(/My group/)).toBeTruthy();
-    expect(screen.getByText('1 person · You are the admin · Showing')).toBeTruthy();
     expect(screen.getByText('Check your email to confirm your address')).toBeTruthy();
+    go('/group'); // the group lives on its own tab
+    expect((await screen.findByTestId('group-title')).props.children).toBe('My group');
+    expect(screen.getByText('1 person · You are the admin')).toBeTruthy();
     expect(server.sent).toEqual([{ to: 'aisha@example.com', kind: 'confirm' }]);
   });
 
@@ -130,12 +131,17 @@ describe('sign in, sign out, reset', () => {
     await signUpOnScreen();
     press('sign-out');
     expect(await see('You’re using Umrah Companion as a guest.')).toBeTruthy();
-    expect(screen.queryByText(/My group/)).toBeNull();
+    go('/group');
+    expect(await screen.findByTestId('group-guest-note')).toBeTruthy(); // a guest has no group
+    expect(screen.queryByTestId('group-title')).toBeNull();
+    go('/profile');
     press('guest-sign-in');
     type('email', 'aisha@example.com');
     type('password', 'password-1');
     press('submit');
-    expect(await see(/My group/)).toBeTruthy();
+    await screen.findByTestId('profile-name');
+    go('/group');
+    expect((await screen.findByTestId('group-title')).props.children).toBe('My group');
   });
 
   test('a wrong password gives one message that does not say which part was wrong', async () => {
@@ -194,7 +200,8 @@ describe('inviting and joining', () => {
     expect(await see('Join My group?')).toBeTruthy();
     expect(screen.getByText('Admin: Aisha Khan')).toBeTruthy();
     press('join');
-    expect(await see('2 people · Showing')).toBeTruthy(); // back on Profile, the joined group is now showing
+    expect(await see('2 people')).toBeTruthy(); // on the Group tab, the joined group is now showing
+    expect(screen.getByText('2 people · Showing')).toBeTruthy(); // and marked in the list of the person's groups
 
     go(`/group/own_${a.id}`);
     expect(await screen.findByTestId(`member-${a.id}`)).toBeTruthy();
@@ -267,6 +274,8 @@ describe('admins and members', () => {
     const { a, b, gid } = await family();
     server.actAs(a.email);
     open(`/group/${gid}`);
+    expect(screen.queryByTestId(`promote-${b.id}`)).toBeNull(); // the choices are closed until asked for
+    press(`options-${b.id}`);
     press(`promote-${b.id}`);
     await screen.findByTestId(`demote-${b.id}`);
     expect(role(gid, b.id)).toBe('admin');
@@ -280,7 +289,7 @@ describe('admins and members', () => {
     server.actAs(b.email);
     open(`/group/${gid}`);
     press('leave');
-    expect(await see('1 person · You are the admin · Showing')).toBeTruthy();
+    expect(await see('1 person · You are the admin')).toBeTruthy(); // the Group tab, back on their own group
     expect(role(gid, b.id)).toBeUndefined();
   });
 
@@ -316,8 +325,8 @@ describe('admins and members', () => {
       server.actAs(b.email);
     });
     expect(await screen.findByTestId('group-gone')).toBeTruthy();
-    go('/profile');
-    expect(await see('1 person · You are the admin · Showing')).toBeTruthy();
+    go('/group');
+    expect(await see('1 person · You are the admin')).toBeTruthy();
   });
 
   test('an admin renames the group; with no connection the app says so and nothing changes', async () => {

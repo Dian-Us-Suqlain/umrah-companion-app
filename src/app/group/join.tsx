@@ -3,9 +3,10 @@ import { useState } from 'react';
 
 import { canJoin, type Invite } from '@/core/groups/invites';
 import { AppError } from '@/data/backend';
-import { Button, Card, Field, Notice, Screen, Txt } from '@/ui/components';
+import { Button, Card, Field, Notice, Screen, SectionLabel, Txt } from '@/ui/components';
 import { useAction, useSession } from '@/ui/session';
 import { t } from '@/ui/strings';
+import { size } from '@/ui/theme';
 
 export default function JoinGroup() {
   const { backend, user, groups, choose } = useSession();
@@ -20,7 +21,7 @@ export default function JoinGroup() {
       <Screen edges={['bottom']}>
         <Card>
           <Txt testID="join-needs-email">{t.group.joinNeedsEmail}</Txt>
-          <Button kind="plain" title={t.account.sendAgain} busy={busy} onPress={() => void run(() => backend.sendConfirmation())} />
+          <Button kind="outline" title={t.account.sendAgain} busy={busy} onPress={() => void run(() => backend.sendConfirmation())} />
           <Notice text={error} />
         </Card>
       </Screen>
@@ -43,35 +44,40 @@ export default function JoinGroup() {
     void run(() => backend.join(code, found, user)).then((ok) => {
       if (!ok) return setFound(null);
       choose(found.groupId);
-      router.dismissTo('/profile');
+      router.dismissTo('/group'); // the Group tab now shows the group just joined
     });
   };
 
   return (
     <Screen edges={['bottom']}>
-      <Card>
-        <Field
-          testID="code"
-          label={t.group.enterCode}
-          placeholder={t.group.codePlaceholder}
-          value={code}
-          onChangeText={(v) => (setCode(v), setFound(null), setAlready(null), setError(null))}
-          autoCapitalize="characters"
-          editable={!busy}
-        />
-        <Notice text={error} />
-        <Notice text={already !== null ? t.group.already(already) : null} tone="muted" />
-        {!found ? <Button testID="find" title={t.group.find} busy={busy} disabled={!code.trim()} onPress={find} /> : null}
-      </Card>
+      <Txt tone="muted">{t.group.joinIntro}</Txt>
+      <Field
+        testID="code"
+        label={t.group.enterCode}
+        placeholder={t.group.codePlaceholder}
+        value={code}
+        onChangeText={(v) => (setCode(v), setFound(null), setAlready(null), setError(null))}
+        autoCapitalize="characters"
+        editable={!busy}
+      />
+      <Notice text={error} />
+      <Notice text={already !== null ? t.group.already(already) : null} tone="muted" />
+      {!found ? <Button testID="find" title={t.group.find} busy={busy} disabled={!code.trim()} onPress={find} /> : null}
       {found ? (
-        <Card highlight>
-          <Txt testID="join-ask" bold size={18}>
-            {t.group.joinAsk(found.groupName)}
+        <>
+          <Card highlight>
+            <SectionLabel>{t.group.codeFor}</SectionLabel>
+            <Txt testID="join-ask" bold size={size.heading}>
+              {t.group.joinAsk(found.groupName)}
+            </Txt>
+            <Txt tone="muted">{t.group.joinAdmin(found.adminName)}</Txt>
+            <Button testID="join" title={t.group.join} busy={busy} onPress={join} />
+            <Button kind="plain" title={t.group.notMine} disabled={busy} onPress={() => setFound(null)} />
+          </Card>
+          <Txt size={size.small} tone="muted">
+            {t.group.joinNote}
           </Txt>
-          <Txt tone="muted">{t.group.joinAdmin(found.adminName)}</Txt>
-          <Button testID="join" title={t.group.join} busy={busy} onPress={join} />
-          <Button kind="plain" title={t.cancel} disabled={busy} onPress={() => setFound(null)} />
-        </Card>
+        </>
       ) : null}
     </Screen>
   );

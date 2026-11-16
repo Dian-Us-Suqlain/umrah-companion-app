@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { runSelfCheck } from '@/core/self-check';
 import { Card, Screen, Txt } from '@/ui/components';
 import { t } from '@/ui/strings';
+import { size } from '@/ui/theme';
 
 type Hermes = { getRuntimeProperties?: () => Record<string, unknown> };
 const hermes = (globalThis as { HermesInternal?: Hermes }).HermesInternal;
@@ -18,7 +19,7 @@ export default function SelfCheckScreen() {
         <Txt bold tone={failed ? 'danger' : 'ok'} testID="self-check-result">
           {failed ? t.selfCheck.someFail(failed, results.length) : t.selfCheck.allPass(results.length)}
         </Txt>
-        <Txt size={14} tone="muted">
+        <Txt size={size.small} tone="muted">
           {t.selfCheck.engine}: {engine}
         </Txt>
       </Card>
@@ -29,7 +30,7 @@ export default function SelfCheckScreen() {
               {r.pass ? '✓' : '✗'} {r.name}
             </Txt>
             {!r.pass && (
-              <Txt size={14} tone="muted">
+              <Txt size={size.small} tone="muted">
                 {t.selfCheck.expected}: {r.expected} · {t.selfCheck.got}: {r.got}
               </Txt>
             )}
