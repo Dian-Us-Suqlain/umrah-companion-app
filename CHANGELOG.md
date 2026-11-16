@@ -10,3 +10,7 @@ What changed in each release, newest first. The release workflow publishes the t
 - Accounts: create an account with a name, email and password, sign in, reset a forgotten password, sign out and delete the account. The app still opens as a guest with nothing asked.
 - Groups: every account has its own group. Invite people with a code, join with a code, make someone an admin, remove someone, or leave. A group always keeps at least one admin.
 - Each group's data is visible only to its members, enforced by the database and checked by tests on every pull request.
+- A new look: warm paper, deep green and gold, in light and dark, with a green card at the top of each screen for the one thing to look at first.
+- A tutorial on first launch: three short screens, skippable, and available again from Profile.
+- Four tabs: the group now has its own tab instead of sitting inside Profile.
+- Easier for every age: larger buttons and rows, all text follows the phone's text size, every icon you can tap has words with it, and nothing needs a swipe.

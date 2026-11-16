@@ -2,9 +2,10 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { validEmail, validName, validPassword } from '@/core/groups/rules';
-import { Button, Card, Field, Notice, Screen, Txt } from '@/ui/components';
+import { Button, Field, Notice, Screen, Txt } from '@/ui/components';
 import { useAction, useSession } from '@/ui/session';
 import { t } from '@/ui/strings';
+import { size } from '@/ui/theme';
 
 export default function SignUp() {
   const { backend } = useSession();
@@ -22,17 +23,16 @@ export default function SignUp() {
 
   return (
     <Screen edges={['bottom']}>
-      <Card>
-        <Field testID="name" label={t.account.name} value={name} onChangeText={setName} autoCapitalize="words" textContentType="name" />
-        <Field testID="email" label={t.account.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" textContentType="emailAddress" />
-        <Field testID="password" label={t.account.password} hint={t.account.passwordHint} value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword" />
-        <Notice text={error} />
-        <Button testID="submit" title={t.account.createButton} busy={busy} onPress={submit} />
-        {error === t.problems['email-in-use'] ? <Button testID="to-sign-in" kind="plain" title={t.account.signIn} onPress={() => router.replace('/account/sign-in')} /> : null}
-        <Txt size={13} tone="muted">
-          {t.account.privacyNote}
-        </Txt>
-      </Card>
+      <Txt tone="muted">{t.account.why}</Txt>
+      <Field testID="name" label={t.account.name} value={name} onChangeText={setName} autoCapitalize="words" textContentType="name" />
+      <Field testID="email" label={t.account.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" textContentType="emailAddress" />
+      <Field testID="password" label={t.account.password} hint={t.account.passwordHint} value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword" />
+      <Notice text={error} />
+      <Button testID="submit" title={t.account.createButton} busy={busy} onPress={submit} />
+      <Txt size={size.small} tone="muted">
+        {t.account.privacyNote}
+      </Txt>
+      <Button testID="to-sign-in" kind="plain" title={`${t.account.haveAccount} ${t.account.signIn}`} onPress={() => router.replace('/account/sign-in')} />
     </Screen>
   );
 }

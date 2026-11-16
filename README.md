@@ -2,7 +2,7 @@
 
 A mobile app for groups travelling for Umrah: the trip plan day by day, flights with live status, hotels, each traveller's documents, family locations, an SOS board, prayer times and Qibla, and a guide to the rites.
 
-**Status: early.** The app opens and shows an invented sample trip (Today, Plan, Profile), and has accounts and groups (sign up, sign in, invite and join with a code). There is no real trip data yet; see [`specs/`](specs/README.md) for what is built and what is next.
+**Status: early.** The app opens and shows an invented sample trip (Today, Plan, Group, Profile, after a short first-run tutorial), and has accounts and groups (sign up, sign in, invite and join with a code). There is no real trip data yet; see [`specs/`](specs/README.md) for what is built and what is next.
 
 ## Run it
 

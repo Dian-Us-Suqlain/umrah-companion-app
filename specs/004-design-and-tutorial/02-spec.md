@@ -1,4 +1,4 @@
-**Status: Draft, awaiting the owner's approval.** No code until approved. Depends on [002 — Accounts and groups](../002-accounts-groups/02-spec.md), which is built but not yet merged.
+**Status: Approved 13 Nov 2026** (the owner looked at the mock-ups and said "looks fine", then asked for it to be built on 17 Nov 2026). Revised 17 Nov 2026 after the [all-ages study](01-domain-study.md); the revisions are marked "(all ages)". Depends on [002 — Accounts and groups](../002-accounts-groups/02-spec.md), which is built but not yet merged.
 
 # 004 — A new look, clearer navigation and a first-run tutorial
 
@@ -12,7 +12,8 @@ Mock-ups of six screens, drawn before any code: https://claude.ai/artifact/MYMNM
 
 - **The web app's design** (`public/css/styles.css` and `docs/designs/` in the web app's repository): warm paper background, deep green, a gold accent, large rounded cards with a soft shadow, a green "hero" card at the top of a screen, Amiri for Arabic text, light and dark versions of every colour.
 - **The native app today:** `src/ui/theme.ts` (11 colours), `src/ui/components.tsx` (card, text, button, field), 3 tabs.
-- **Apple's guidance** that controls be at least 44 points tall, and the accessibility rule that text contrast be at least 4.5 to 1. The gold of the web app fails that on the paper background as text, so gold is used for decoration and on green only; a darker gold is used for text.
+- **Who holds the phone** ([01-domain-study.md](01-domain-study.md)): every group is likely to include someone over 60 and someone who rarely uses apps; most people in a group only read Today.
+- **Apple's guidance** that controls be at least 44 points tall, Google's of 48, and the accessibility rule that text contrast be at least 4.5 to 1. The gold of the web app fails that on the paper background as text, so gold is used for decoration and on green only; a darker gold is used for text.
 
 ## Goals
 
@@ -44,9 +45,21 @@ Mock-ups of six screens, drawn before any code: https://claude.ai/artifact/MYMNM
 | Danger | `#8C1D18` on `#FBE4E1` | `#FF8A80` on `#3A1F1C` | Cancelled flights, destructive actions |
 
 - **Type:** the phone's own font (San Francisco on iPhone, Roboto on Android), sizes 30 (screen title), 22, 17, 16, 14, 12. Amiri for Arabic phrases, bundled with the app so it works offline.
-- **Shape:** cards 22 to 26 points round; buttons 16 to 18; everything tappable at least 44 points tall; main buttons 52 to 56.
+- **Shape:** cards 22 to 26 points round; buttons 16 to 18; everything tappable at least **48** points tall (all ages; the first draft said 44); main buttons 56.
 - **Components** (`src/ui/components.tsx`): Screen, Title, Card, HeroCard, Row (icon, label, chevron), Avatar (initials), Button (filled, outlined, plain, danger), Field, Notice, Badge, SectionLabel, TabBar icons.
 - **Icons:** the Ionicons set already in the app. No emoji.
+
+## Rules for every age (all ages)
+
+From the study, section 5. Each applies to every screen in this spec and to every later one.
+
+1. Every button and row is at least 48 points tall; main buttons 56.
+2. All text follows the phone's text-size setting. Anything a person must read to act is 16 points or more; 13 is the smallest size, for labels only.
+3. Every icon that can be tapped has words beside it, or opens choices written in words. Nothing is reachable only by a swipe: the tutorial has Next and Back buttons.
+4. One filled button per screen: the main action. Destructive actions are red, never filled, and ask first.
+5. Today shows what is happening now (or next) in the largest text on the screen, above everything else.
+6. Colour is never the only signal: a cancelled flight is red, says "Cancelled", and is struck through.
+7. No separate "simple mode": one design for everyone.
 
 ## Screens
 
@@ -66,7 +79,7 @@ Rules:
 The same content as now, restyled: a green hero card for the day ("Day 3 of 10 · Makkah") with what is happening now, a red panel for a cancelled flight, the rest of the day as rows in one card. The "Sample trip" label becomes a small gold badge.
 
 ### Group (new tab)
-- Signed in: the current group's screen from spec 002, restyled. The invite code sits in a green hero card with Share and New code. Each person has an avatar with their initials; an admin reaches Make admin and Remove through a "…" button on the row instead of two full-width buttons per person.
+- Signed in: the current group's screen from spec 002, restyled. The invite code sits in a green hero card with Share and New code. Each person has an avatar with their initials; an admin reaches Make admin and Remove through a "…" button on the row instead of two full-width buttons per person. The "…" opens the choices, written in words, directly under that person (all ages: no hidden menu, no long-press).
 - A person with more than one group switches between them from the title of this tab.
 - Guest: a short explanation and the two buttons, Create an account and Sign in, plus "Join a group with a code" (which explains that an account is needed).
 
@@ -95,10 +108,11 @@ Sign up, sign in, reset password, edit name, delete account, join a group: the s
 4. Four tabs: Today, Plan, Group, Profile. The Group tab shows the current group for a signed-in person and the guest explanation otherwise.
 5. Every screen listed under Goals 2 uses only the components and colours of the design system: no colour or font size written directly in a screen file.
 6. Every text and background pair in the token table passes 4.5 to 1 contrast in light and dark (computed in a unit test).
-7. Every button and row is at least 44 points tall (checked in a unit test on the components).
+7. Every button and row is at least 48 points tall (checked in a unit test on the components), and no component switches off the phone's text-size setting (all ages).
 8. All existing tests still pass with wording unchanged (93 unit and screen tests, 38 database-rules tests), apart from tests that looked for layout that this spec moves (the group inside Profile).
 9. Screenshots of every screen, light and dark, taken from a build on a device or simulator, are attached to the review for the owner to look at before the pull request.
 10. The app launches on the owner's iPhone (iOS 27) and the owner has walked the tutorial and the tabs.
+11. (all ages) The owner has handed the phone to one older relative and watched the three tasks in the study, section 7. Not a gate for the pull request; its findings become fixes or a later spec.
 
 ## Test plan
 
@@ -107,7 +121,11 @@ Sign up, sign in, reset password, edit name, delete account, join a group: the s
 - By eye: screenshots, light and dark (criterion 9). This is the check that was missing in spec 002.
 - On the owner's iPhone: criterion 10.
 
-## Open questions for the owner
+## Open questions for the owner (answered)
+
+Answered on 13 and 17 Nov 2026; see the log. 1: yes. 2: this spec stays the look, navigation and tutorial; the other features follow one at a time. 3: four tabs. 4: kept, sourced to Sahih al-Bukhari 1549. 5: as drawn.
+
+The questions as asked:
 
 1. **Is this the direction?** Look at the mock-ups. Say what to change before anything is built: colours, the green welcome screen, the wording, the order of the tutorial.
 2. **"Other features":** your message asked to rebuild "the UI and other features". I have kept this spec to the look, navigation and tutorial, and left documents, flights, the board and the rest as their own specs, one at a time. Is that right, or do you want one of them pulled into this piece of work? If so, which first?

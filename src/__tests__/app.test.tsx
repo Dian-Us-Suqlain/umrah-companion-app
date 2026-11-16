@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { act, renderRouter, screen, within } from 'expo-router/testing-library';
+import { act, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 
 // Icons load their font asynchronously, which is noise here.
 jest.mock('@expo/vector-icons/Ionicons', () => () => null);
@@ -13,26 +13,31 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
+/** Opens the app and waits until it has checked whether the tutorial was seen (it has, in tests). */
+const open = async () => {
+  renderRouter('./src/app');
+  await waitFor(() => expect(screen.queryByTestId('starting')).toBeNull());
+};
 const go = (path: '/' | '/plan' | '/profile' | '/self-check') => act(() => router.push(path));
 
-test('the app opens on Today and shows the sample trip’s third day', () => {
-  renderRouter('./src/app');
+test('the app opens on Today and shows the sample trip’s third day', async () => {
+  await open();
   const card = screen.getByTestId('today-card');
   expect(within(card).getByText('DAY 3 · MON 11 JAN')).toBeTruthy();
   expect(within(card).getByText('Makkah')).toBeTruthy();
   expect(screen.getByText('Sample trip')).toBeTruthy();
 });
 
-test('a cancelled flight is marked cancelled on Today and never listed as the next thing', () => {
-  renderRouter('./src/app');
+test('a cancelled flight is marked cancelled on Today and never listed as the next thing', async () => {
+  await open();
   expect(screen.getByText('Cancelled')).toBeTruthy();
   expect(screen.getByText('ZZ 310 · Jeddah → Madinah')).toBeTruthy();
   expect(screen.getByText('Tomorrow')).toBeTruthy();
   expect(screen.getByText('Check-out day')).toBeTruthy(); // tomorrow starts with leaving the Makkah hotel
 });
 
-test('Plan shows every day, with today marked and the Now line in it', () => {
-  renderRouter('./src/app');
+test('Plan shows every day, with today marked and the Now line in it', async () => {
+  await open();
   go('/plan');
   const today = screen.getByTestId('plan-today');
   expect(within(today).getByText('DAY 3 · MON 11 JAN · Makkah')).toBeTruthy();
@@ -45,8 +50,8 @@ test('Plan shows every day, with today marked and the Now line in it', () => {
   expect(screen.getByText('No transport saved from Madinah to Jeddah airport')).toBeTruthy();
 });
 
-test('Profile shows the version and app type, and opens the self-check, which passes', () => {
-  renderRouter('./src/app');
+test('Profile shows the version and app type, and opens the self-check, which passes', async () => {
+  await open();
   go('/profile');
   expect(within(screen.getByTestId('variant')).getByText('Development')).toBeTruthy();
   expect(screen.getAllByText('Coming later').length).toBe(2); // privacy policy and sources; delete account is real now

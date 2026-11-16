@@ -59,7 +59,10 @@ const config: ExpoConfig = {
     // Firebase's iPhone libraries arrive as Swift packages and need dynamic frameworks (static fails at pod install).
     // iOS 27 refuses to launch an app that has not adopted the scene lifecycle; Expo SDK 57 needs it switched on.
     ['expo-build-properties', { ios: { useFrameworks: 'dynamic', enableSceneSupport: true } }],
-    ['expo-splash-screen', { backgroundColor: '#0F5C4D', image: './assets/images/splash-icon.png', imageWidth: 76 }],
+    // The splash is the app's own green (the `hero` colour in src/ui/theme.ts).
+    ['expo-splash-screen', { backgroundColor: '#163A34', image: './assets/images/splash-icon.png', imageWidth: 76 }],
+    // Amiri, for Arabic phrases, is built into the app so it needs no network. SIL Open Font Licence (assets/fonts/Amiri-OFL.txt).
+    ['expo-font', { fonts: ['./assets/fonts/Amiri-Regular.ttf'] }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   extra: { variant, usesEmulator, emulatorHost: process.env.EMULATOR_HOST ?? 'localhost' },
